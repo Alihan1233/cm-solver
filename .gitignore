@@ -1,0 +1,91 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+/.vs/cm-solver/FileContentIndex
+/.vs/cm-solver/v17/Browse.VC.opendb
+/.vs/cm-solver/v17/Browse.VC.db-wal
+/.vs/cm-solver/v17/Browse.VC.db-shm
+/.vs/cm-solver/v17/Browse.VC.db
+/.vs/cm-solver/v17/.wsuo
+/.vs/ConsPars/FileContentIndex
+/.vs/ConsPars/v17
+/.vs/cm-solver/v17/ipch/AutoPCH/d09a974fba981836
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/slnx.sqlite-journal
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb

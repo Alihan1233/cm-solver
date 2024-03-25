@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "interpolation", "interpolation\interpolation.vcxproj", "{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{29A54073-A441-4046-9ED4-A75A92EB2CF9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Debug|x64.ActiveCfg = Debug|x64
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Debug|x64.Build.0 = Debug|x64
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Debug|x86.ActiveCfg = Debug|Win32
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Debug|x86.Build.0 = Debug|Win32
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Release|x64.ActiveCfg = Release|x64
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Release|x64.Build.0 = Release|x64
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Release|x86.ActiveCfg = Release|Win32
+		{8ECADBB6-B47A-4324-ADA1-3895CC06DF70}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5FE1E64B-E94F-4CAD-A471-B56264E4BA53}
+	EndGlobalSection
+EndGlobal
