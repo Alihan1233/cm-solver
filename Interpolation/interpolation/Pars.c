@@ -7,7 +7,7 @@
 
 
 typedef struct {
-    int pt;
+    double pt;
     double tm;
     double rog;
     double rohl;
@@ -18,7 +18,7 @@ typedef struct {
     double drogdt;
     double drohldt;
     double drowtdt;
-    int rs;
+    double rs;
     double rsw;
     double visg;
     double vishl;
@@ -386,7 +386,7 @@ int main(int argc, char* argv[]) {
 
     PtvTablePoint* resulty = CalculatePtvTablePoint(TM, PT, data.ptvTablePoints, data.ptvTablePointsCount);
 
-    printf("PT: %d\n", resulty->pt);
+    printf("PT: %f\n", resulty->pt);
     printf("TM: %f\n", resulty->tm);
     printf("ROG: %e\n", resulty->rog);
     printf("ROHL: %e\n", resulty->rohl);
@@ -397,7 +397,7 @@ int main(int argc, char* argv[]) {
     printf("DROGDT: %e\n", resulty->drogdt);
     printf("DROHLDT: %e\n", resulty->drohldt);
     printf("DROWTDT: %e\n", resulty->drowtdt);
-    printf("RS: %e\n", resulty->rs);
+    printf("RS: %f\n", resulty->rs);
     printf("RSW: %e\n", resulty->rsw);
     printf("VISG: %e\n", resulty->visg);
     printf("VISHL: %e\n", resulty->vishl);
