@@ -251,7 +251,7 @@ PtvTablePoint* CalculatePtvTablePoint(double Temperature, double Pressure, PtvTa
         presT = PtvTable[count - 1].pt;
     }
     for (int i = 0; i < count; i++) {
-        if (PtvTable[i].pt > Pressure && !presD_set) {
+        if (i > 0 && PtvTable[i].pt > Pressure && !presD_set) {
             presD = PtvTable[i - 1].pt;
             presT = PtvTable[i].pt;
             presD_set = 1;
@@ -381,7 +381,7 @@ int main(int argc, char* argv[]) {
 
     Data data = parseData(jsonString);
 
-    double PT = 999998;
+    double PT = 999;
     double TM = 3.1556679;
 
     PtvTablePoint* resulty = CalculatePtvTablePoint(TM, PT, data.ptvTablePoints, data.ptvTablePointsCount);
