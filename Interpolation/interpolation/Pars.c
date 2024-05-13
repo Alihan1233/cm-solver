@@ -5,6 +5,46 @@
 #include <locale.h>
 #include <math.h>
 
+typedef struct {
+    double criticalPressure;
+    double criticalTemperature;
+    double criticalVolume;
+    double acentricFactor;
+    double boilerTemperature;
+    double molecularWeight;
+    double parohor;
+    double density;
+    double cp1;
+    double cp2;
+    double cp3;
+    double cp4;
+    double meltingTemperature;
+    double meltingEnthalpy;
+    double cPen;
+    double cPenT;
+    double aiSmall;
+    double biSmall;
+    double aiLarge;
+    double biLarge;
+    double aiiSmall;
+    double biiSmall;
+    double aiiLarge;
+    double biiLarge;
+    double ahSmall;
+    double bhSmall;
+    double ahHuge;
+    double bhHuge;
+} OverridableParameters;
+
+typedef struct {
+    char id[50];
+    char compound[50];
+    double mol;
+    double molWeight;
+    double density;
+    OverridableParameters overridableParameters;
+} Component;
+
 
 typedef struct {
     double pt;
@@ -38,27 +78,110 @@ typedef struct {
     double seg;
     double sehl;
     double sewt;
+    int order;
 } PtvTablePoint;
 
-
+// Структура для BubbleCurve
 typedef struct {
+    double temperature;
+    double pressure;
+} BubbleCurvePoint;
+
+// Структура для CriticalPoint
+typedef struct {
+    double* temperature;
+    double* pressure;
+} CriticalPoint;
+
+// Структура для PhaseEnvelope
+typedef struct {
+    char id[50];
+    CriticalPoint* criticalPoint;
+    BubbleCurvePoint* bubbleCurvePoints;
+    int bubbleCurveCount;
+} PhaseEnvelope;
+
+// Структура для основных данных
+typedef struct {
+    char id[50];
+    char name[50];
+    int type;
+    char reservoir[50];
+    int phases;
+    int componentsCount;
+    Component* components;
     PtvTablePoint* ptvTablePoints;
+    char equationOfState;
+    double stdPressure;
+    double stdTemperature;
+    double stdGasDensity;
+    double stdOilDensity;
+    double stdLiqDensity;
+    double stdWatDensity;
+    double gor;
+    double glr;
+    double wc;
+    double totWaterFraction;
+    PhaseEnvelope phaseEnvelope;
     int ptvTablePointsCount;
 } Data;
 
-typedef struct {
-    PtvTablePoint* point;
-    char* message;
-} PtvTablePointNoGood;
 
 
 void safeStrCpy(char* destination, size_t size, const char* source) {
-    if (strcpy_s(destination, size, source) != 0) {
-        perror("Error copying string");
-        exit(1);
+    if (source != NULL) {
+        if (strcpy_s(destination, size, source) != 0) {
+            perror("Error copying string");
+            exit(1);
+        }
+    }
+    else {
+        destination[0] = '\0';
     }
 }
 
+
+// Функция для парсинга компонента
+Component parseComponent(cJSON* componentJSON) {
+    Component component;
+    safeStrCpy(component.id, sizeof(component.id), cJSON_GetObjectItem(componentJSON, "Id")->valuestring);
+    safeStrCpy(component.compound, sizeof(component.compound), cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "Compound"), "Value")->valuestring);
+    component.mol = cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "Mol"), "Value")->valuedouble;
+
+    cJSON* overridableParametersJSON = cJSON_GetObjectItem(componentJSON, "OverridableParameters");
+    if (overridableParametersJSON != NULL) {
+        component.overridableParameters.criticalPressure = cJSON_GetObjectItem(overridableParametersJSON, "CriticalPressure")->valuedouble;
+        component.overridableParameters.criticalTemperature = cJSON_GetObjectItem(overridableParametersJSON, "CriticalTemperature")->valuedouble;
+        component.overridableParameters.criticalVolume = cJSON_GetObjectItem(overridableParametersJSON, "CriticalVolume")->valuedouble;
+        component.overridableParameters.acentricFactor = cJSON_GetObjectItem(overridableParametersJSON, "AcentricFactor")->valuedouble;
+        component.overridableParameters.boilerTemperature = cJSON_GetObjectItem(overridableParametersJSON, "BoilerTemperature")->valuedouble;
+        component.overridableParameters.molecularWeight = cJSON_GetObjectItem(overridableParametersJSON, "MolecularWeight")->valuedouble;
+        component.overridableParameters.parohor = cJSON_GetObjectItem(overridableParametersJSON, "Parohor")->valuedouble;
+        component.overridableParameters.density = cJSON_GetObjectItem(overridableParametersJSON, "Density")->valuedouble;
+        component.overridableParameters.cp1 = cJSON_GetObjectItem(overridableParametersJSON, "Cp1")->valuedouble;
+        component.overridableParameters.cp2 = cJSON_GetObjectItem(overridableParametersJSON, "Cp2")->valuedouble;
+        component.overridableParameters.cp3 = cJSON_GetObjectItem(overridableParametersJSON, "Cp3")->valuedouble;
+        component.overridableParameters.cp4 = cJSON_GetObjectItem(overridableParametersJSON, "Cp4")->valuedouble;
+        component.overridableParameters.meltingTemperature = cJSON_GetObjectItem(overridableParametersJSON, "MeltingTemperature")->valuedouble;
+        component.overridableParameters.meltingEnthalpy = cJSON_GetObjectItem(overridableParametersJSON, "MeltingEnthalpy")->valuedouble;
+        component.overridableParameters.cPen = cJSON_GetObjectItem(overridableParametersJSON, "CPen")->valuedouble;
+        component.overridableParameters.cPenT = cJSON_GetObjectItem(overridableParametersJSON, "CPenT")->valuedouble;
+        component.overridableParameters.aiSmall = cJSON_GetObjectItem(overridableParametersJSON, "AISmall")->valuedouble;
+        component.overridableParameters.biSmall = cJSON_GetObjectItem(overridableParametersJSON, "BISmall")->valuedouble;
+        component.overridableParameters.aiLarge = cJSON_GetObjectItem(overridableParametersJSON, "AILarge")->valuedouble;
+        component.overridableParameters.biLarge = cJSON_GetObjectItem(overridableParametersJSON, "BILarge")->valuedouble;
+        component.overridableParameters.aiiSmall = cJSON_GetObjectItem(overridableParametersJSON, "AIISmall")->valuedouble;
+        component.overridableParameters.biiSmall = cJSON_GetObjectItem(overridableParametersJSON, "BIISmall")->valuedouble;
+        component.overridableParameters.aiiLarge = cJSON_GetObjectItem(overridableParametersJSON, "AIILarge")->valuedouble;
+        component.overridableParameters.biiLarge = cJSON_GetObjectItem(overridableParametersJSON, "BIILarge")->valuedouble;
+        component.overridableParameters.ahSmall = cJSON_GetObjectItem(overridableParametersJSON, "AHSmall")->valuedouble;
+        component.overridableParameters.bhSmall = cJSON_GetObjectItem(overridableParametersJSON, "BHSmall")->valuedouble;
+        component.overridableParameters.ahHuge = cJSON_GetObjectItem(overridableParametersJSON, "AHHuge")->valuedouble;
+        component.overridableParameters.bhHuge = cJSON_GetObjectItem(overridableParametersJSON, "BHHuge")->valuedouble;
+    }
+
+    return component;
+}
 
 PtvTablePoint parsePtvTablePoint(cJSON* ptvTablePointJSON) {
     PtvTablePoint ptvTablePoint;
@@ -93,25 +216,136 @@ PtvTablePoint parsePtvTablePoint(cJSON* ptvTablePointJSON) {
     ptvTablePoint.seg = cJSON_HasObjectItem(ptvTablePointJSON, "SEG") ? cJSON_GetObjectItem(ptvTablePointJSON, "SEG")->valuedouble : 0.0;
     ptvTablePoint.sehl = cJSON_HasObjectItem(ptvTablePointJSON, "SEHL") ? cJSON_GetObjectItem(ptvTablePointJSON, "SEHL")->valuedouble : 0.0;
     ptvTablePoint.sewt = cJSON_HasObjectItem(ptvTablePointJSON, "SEWT") ? cJSON_GetObjectItem(ptvTablePointJSON, "SEWT")->valuedouble : 0.0;
+    ptvTablePoint.order = cJSON_GetObjectItem(ptvTablePointJSON, "Order")->valueint;
     return ptvTablePoint;
 }
 
+// Функция для парсинга BubbleCurve
+BubbleCurvePoint parseBubbleCurvePoint(cJSON* bubbleCurvePointJSON) {
+    BubbleCurvePoint bubbleCurvePoint;
+    cJSON* temperatureJSON = cJSON_GetObjectItem(bubbleCurvePointJSON, "Temperature");
+    if (temperatureJSON != NULL) {
+        bubbleCurvePoint.temperature = temperatureJSON->valuedouble;
+    }
+    else {
+        bubbleCurvePoint.temperature = 0.0;
+    }
+    cJSON* pressureJSON = cJSON_GetObjectItem(bubbleCurvePointJSON, "Pressure");
+    if (pressureJSON != NULL) {
+        bubbleCurvePoint.pressure = pressureJSON->valueint;
+    }
+    else {
+        bubbleCurvePoint.pressure = 0;
+    }
+    return bubbleCurvePoint;
+}
+
+// Функция для парсинга CriticalPoint
+CriticalPoint* parseCriticalPoint(cJSON* criticalPointJSON) {
+    if (criticalPointJSON == NULL || cJSON_IsNull(criticalPointJSON)) {
+        return NULL;
+    }
+
+    CriticalPoint* criticalPoint = malloc(sizeof(CriticalPoint));
+
+    cJSON* temperatureJSON = cJSON_GetObjectItem(criticalPointJSON, "Temperature");
+    if (temperatureJSON != NULL) {
+        criticalPoint->temperature = malloc(sizeof(double));
+        *criticalPoint->temperature = temperatureJSON->valuedouble;
+    }
+    else {
+        criticalPoint->temperature = NULL;
+    }
+
+    cJSON* pressureJSON = cJSON_GetObjectItem(criticalPointJSON, "Pressure");
+    if (pressureJSON != NULL) {
+        criticalPoint->pressure = malloc(sizeof(int));
+        *criticalPoint->pressure = pressureJSON->valueint;
+    }
+    else {
+        criticalPoint->pressure = NULL;
+    }
+
+    return criticalPoint;
+}
+
+// Функция для парсинга PhaseEnvelope 
+PhaseEnvelope parsePhaseEnvelope(cJSON* phaseEnvelopeJSON) {
+    PhaseEnvelope phaseEnvelope;
+    safeStrCpy(phaseEnvelope.id, sizeof(phaseEnvelope.id), cJSON_GetObjectItem(cJSON_GetObjectItem(phaseEnvelopeJSON, "Id"), "Value")->valuestring);
+    cJSON* criticalPointJSON = cJSON_GetObjectItem(phaseEnvelopeJSON, "CriticalPoint");
+    phaseEnvelope.criticalPoint = parseCriticalPoint(criticalPointJSON);
+
+    cJSON* bubbleCurvePointsJSON = cJSON_GetObjectItem(phaseEnvelopeJSON, "BubbleCurve");
+    if (bubbleCurvePointsJSON != NULL && cJSON_IsArray(bubbleCurvePointsJSON)) {
+        phaseEnvelope.bubbleCurveCount = cJSON_GetArraySize(bubbleCurvePointsJSON);
+        phaseEnvelope.bubbleCurvePoints = malloc(phaseEnvelope.bubbleCurveCount * sizeof(BubbleCurvePoint));
+        int i = 0;
+        cJSON* bubbleCurvePointJSON = NULL;
+        cJSON_ArrayForEach(bubbleCurvePointJSON, bubbleCurvePointsJSON) {
+            phaseEnvelope.bubbleCurvePoints[i++] = parseBubbleCurvePoint(bubbleCurvePointJSON);
+        }
+    }
+
+    return phaseEnvelope;
+}
+
+
 // Функция для парсинга данных 
-Data parseData(const char* jsonString) {
-    Data data;
+Data* parseData(const char* jsonString) {
+    //Data data;
+    Data* data = (Data*)malloc(sizeof(Data));
     cJSON* root = cJSON_Parse(jsonString);
 
     if (root != NULL) {
+        safeStrCpy(data->id, sizeof(data->id), cJSON_GetObjectItem(cJSON_GetObjectItem(root, "Id"), "Value")->valuestring);
+        safeStrCpy(data->name, sizeof(data->name), cJSON_GetObjectItem(cJSON_GetObjectItem(root, "Name"), "Value")->valuestring);
+        data->type = cJSON_GetObjectItem(root, "Type")->valueint;
+        safeStrCpy(data->reservoir, sizeof(data->reservoir), cJSON_GetObjectItem(cJSON_GetObjectItem(root, "Reservoir"), "Value")->valuestring);
+        data->phases = cJSON_GetObjectItem(cJSON_GetObjectItem(root, "Phases"), "Value")->valueint;
+        data->equationOfState = cJSON_GetObjectItem(root, "EquationOfState")->valuestring;
+        data->stdPressure = cJSON_GetObjectItem(root, "StdPressure")->valueint;
+        data->stdTemperature = cJSON_GetObjectItem(root, "StdTemperature")->valuedouble;
+        data->stdGasDensity = cJSON_GetObjectItem(root, "StdGasDensity")->valuedouble;
+        data->stdOilDensity = cJSON_GetObjectItem(root, "StdOilDensity")->valuedouble;
+        data->stdLiqDensity = cJSON_GetObjectItem(root, "StdLiqDensity")->valuedouble;
+        data->stdWatDensity = cJSON_GetObjectItem(root, "StdWatDensity")->valuedouble;
+        data->gor = cJSON_GetObjectItem(root, "Gor")->valueint;
+        data->glr = cJSON_GetObjectItem(root, "Glr")->valuedouble;
+        data->wc = cJSON_GetObjectItem(root, "Wc")->valueint;
+        data->totWaterFraction = cJSON_GetObjectItem(root, "TotWaterFraction")->valuedouble;
+
+
+
+        cJSON* componentsJSON = cJSON_GetObjectItem(root, "Components");
+        if (componentsJSON != NULL && cJSON_IsArray(componentsJSON)) {
+            data->componentsCount = cJSON_GetArraySize(componentsJSON);
+            data->components = malloc(data->componentsCount * sizeof(Component));
+            int i = 0;
+            cJSON* componentJSON = NULL;
+            cJSON_ArrayForEach(componentJSON, componentsJSON) {
+                data->components[i++] = parseComponent(componentJSON);
+            }
+        }
+
         cJSON* ptvTablePointsJSON = cJSON_GetObjectItem(root, "PtvTablePoints");
+        int ptvTablePointsCount = cJSON_GetArraySize(ptvTablePointsJSON);
         if (ptvTablePointsJSON != NULL && cJSON_IsArray(ptvTablePointsJSON)) {
-            data.ptvTablePointsCount = cJSON_GetArraySize(ptvTablePointsJSON);
-            data.ptvTablePoints = malloc(data.ptvTablePointsCount * sizeof(PtvTablePoint));
+            data->ptvTablePointsCount = cJSON_GetArraySize(ptvTablePointsJSON);
+            data->ptvTablePoints = malloc(ptvTablePointsCount * sizeof(PtvTablePoint));
             int i = 0;
             cJSON* ptvTablePointJSON = NULL;
             cJSON_ArrayForEach(ptvTablePointJSON, ptvTablePointsJSON) {
-                data.ptvTablePoints[i++] = parsePtvTablePoint(ptvTablePointJSON);
+                data->ptvTablePoints[i++] = parsePtvTablePoint(ptvTablePointJSON);
             }
         }
+
+        cJSON* phaseEnvelopeJSON = cJSON_GetObjectItem(root, "PhaseEnvelope");
+        if (phaseEnvelopeJSON != NULL) {
+            data->phaseEnvelope = parsePhaseEnvelope(phaseEnvelopeJSON);
+        }
+
+        cJSON_Delete(root);
     }
 
     return data;
@@ -379,12 +613,12 @@ int main(int argc, char* argv[]) {
 
     fclose(file);
 
-    Data data = parseData(jsonString);
+    Data* data = parseData(jsonString);
 
-    double PT = 999;
+    double PT = 999998;
     double TM = 3.1556679;
 
-    PtvTablePoint* resulty = CalculatePtvTablePoint(TM, PT, data.ptvTablePoints, data.ptvTablePointsCount);
+    PtvTablePoint* resulty = CalculatePtvTablePoint(TM, PT, data->ptvTablePoints, data->ptvTablePointsCount);
 
     printf("PT: %f\n", resulty->pt);
     printf("TM: %f\n", resulty->tm);
@@ -419,6 +653,6 @@ int main(int argc, char* argv[]) {
     //printf("Message: %s\n", resulty.message);
 
     free(jsonString);
-    free(data.ptvTablePoints);
+    free(data->ptvTablePoints);
     return 0;
 }
