@@ -36,18 +36,15 @@ typedef struct {
 } OverridableParameters;
 
 typedef struct {
-    char id[50];
+    int id;
     char compound[50];
     double mol;
-    double molWeight;
-    double density;
-    OverridableParameters overridableParameters;
 } Component;
 
 // Структура для Ptv
 typedef struct {
     char id[50];
-    double pt;
+    int pt;
     double tm;
     double rog;
     double rohl;
@@ -58,7 +55,7 @@ typedef struct {
     double drogdt;
     double drohldt;
     double drowtdt;
-    double rs;
+    int rs;
     double rsw;
     double visg;
     double vishl;
@@ -66,9 +63,9 @@ typedef struct {
     double cpg;
     double cphl;
     double cpwt;
-    double hg;
-    double hhl;
-    double hwt;
+    int hg;
+    int hhl;
+    int hwt;
     double tcg;
     double tchl;
     double tcwt;
@@ -84,18 +81,17 @@ typedef struct {
 // Структура для BubbleCurve
 typedef struct {
     double temperature;
-    double pressure;
+    int pressure;
 } BubbleCurvePoint;
 
 // Структура для CriticalPoint
 typedef struct {
     double* temperature;
-    double* pressure;
+    int* pressure;
 } CriticalPoint;
 
 // Структура для PhaseEnvelope
 typedef struct {
-    char id[50];
     CriticalPoint* criticalPoint;
     BubbleCurvePoint* bubbleCurvePoints;
     int bubbleCurveCount;
@@ -112,70 +108,48 @@ typedef struct {
     Component* components;
     PtvTablePoint* ptvTablePoints;
     char equationOfState;
-    double stdPressure;
+    int stdPressure;
     double stdTemperature;
     double stdGasDensity;
     double stdOilDensity;
     double stdLiqDensity;
     double stdWatDensity;
-    double gor;
+    int gor;
     double glr;
-    double wc;
+    int wc;
     double totWaterFraction;
     PhaseEnvelope phaseEnvelope;
 } Data;
 
+// Функция для копирования строк
+//void safeStrCpy(char* destination, size_t size, const char* source) {
+//    if (destination == NULL || source == NULL) {
+//        perror("Error: NULL pointer passed to safeStrCpy");
+//        exit(1);
+//    }
+//    if (source != NULL && strlen(source) >= size) {
+//        perror("Error: destination not large enough to hold source in safeStrCpy");
+//        exit(1);
+//    }
+//    if (strcpy_s(destination, size, source) != 0) {
+//        perror("Error copying string");
+//        exit(1);
+//    }
+//}
+
 void safeStrCpy(char* destination, size_t size, const char* source) {
-    if (source != NULL) {
-        if (strcpy_s(destination, size, source) != 0) {
-            perror("Error copying string");
-            exit(1);
-        }
-    }
-    else {
-        destination[0] = '\0';
+    if (strcpy_s(destination, size, source) != 0) {
+        perror("Error copying string");
+        exit(1);
     }
 }
 
-// Функция для вывода OverridableParameters
-void printOverridableParameters(OverridableParameters* overridableParameters) {
-    printf("CriticalPressure: %f\n", overridableParameters->criticalPressure);
-    printf("CriticalTemperature: %f\n", overridableParameters->criticalTemperature);
-    printf("CriticalVolume: %f\n", overridableParameters->criticalVolume);
-    printf("AcentricFactor: %f\n", overridableParameters->acentricFactor);
-    printf("BoilerTemperature: %f\n", overridableParameters->boilerTemperature);
-    printf("MolecularWeight: %f\n", overridableParameters->molecularWeight);
-    printf("Parohor: %f\n", overridableParameters->parohor);
-    printf("Density: %f\n", overridableParameters->density);
-    printf("Cp1: %f\n", overridableParameters->cp1);
-    printf("Cp2: %f\n", overridableParameters->cp2);
-    printf("Cp3: %f\n", overridableParameters->cp3);
-    printf("Cp4: %f\n", overridableParameters->cp4);
-    printf("MeltingTemperature: %f\n", overridableParameters->meltingTemperature);
-    printf("MeltingEnthalpy: %f\n", overridableParameters->meltingEnthalpy);
-    printf("CPen: %f\n", overridableParameters->cPen);
-    printf("CPenT: %f\n", overridableParameters->cPenT);
-    printf("AISmall: %f\n", overridableParameters->aiSmall);
-    printf("BISmall: %f\n", overridableParameters->biSmall);
-    printf("AILarge: %f\n", overridableParameters->aiLarge);
-    printf("BILarge: %f\n", overridableParameters->biLarge);
-    printf("AIISmall: %f\n", overridableParameters->aiiSmall);
-    printf("BIISmall: %f\n", overridableParameters->biiSmall);
-    printf("AIILarge: %f\n", overridableParameters->aiiLarge);
-    printf("BIILarge: %f\n", overridableParameters->biiLarge);
-    printf("AHSmall: %f\n", overridableParameters->ahSmall);
-    printf("BHSmall: %f\n", overridableParameters->bhSmall);
-    printf("AHHuge: %f\n", overridableParameters->ahHuge);
-    printf("BHHuge: %f\n", overridableParameters->bhHuge);
-}
 
 // Функция для вывода компонента
 void printComponent(Component* component) {
-    printf("Component Id: %s\n", component->id);
+    printf("Component Id: %d\n", component->id);
     printf("Compound: %s\n", component->compound);
     printf("Mol: %f\n", component->mol);
-    printf("=== OverridableParameters ===\n");
-    printOverridableParameters(&component->overridableParameters);
 }
 
 // Функция для вывода Ptv в консоль
@@ -218,7 +192,7 @@ void printPtvTablePoint(PtvTablePoint* ptvTablePoint) {
 // Функция для вывода BubbleCurve в консоль
 void printBubbleCurvePoint(BubbleCurvePoint* bubbleCurvePoint) {
     printf("Temperature: %f\n", bubbleCurvePoint->temperature);
-    printf("Pressure: %f\n", bubbleCurvePoint->pressure);
+    printf("Pressure: %d\n", bubbleCurvePoint->pressure);
 }
 
 // Функция для вывода CriticalPoint в консоль
@@ -229,13 +203,12 @@ void printCriticalPoint(CriticalPoint* criticalPoint) {
     else {
         printf("CriticalPoint:\n");
         printf("Temperature: %f\n", criticalPoint->temperature != NULL ? *criticalPoint->temperature : 0.0);
-        printf("Pressure: %f\n", criticalPoint->pressure != NULL ? *criticalPoint->pressure : 0);
+        printf("Pressure: %d\n", criticalPoint->pressure != NULL ? *criticalPoint->pressure : 0);
     }
 }
 
 // Функция для вывода PhaseEnvelope в консоль
 void printPhaseEnvelope(PhaseEnvelope* phaseEnvelope) {
-    printf("PhaseEnvelope Id: %s\n", phaseEnvelope->id);
     printCriticalPoint(phaseEnvelope->criticalPoint);
 
     printf("BubbleCurve:\n");
@@ -266,15 +239,15 @@ void printData(Data data) {
     }
 
     printf("EquationOfState: %d\n", data.equationOfState);
-    printf("StdPressure: %f\n", data.stdPressure);
+    printf("StdPressure: %d\n", data.stdPressure);
     printf("StdTemperature: %f\n", data.stdTemperature);
     printf("StdGasDensity: %f\n", data.stdGasDensity);
     printf("StdOilDensity: %f\n", data.stdOilDensity);
     printf("StdLiqDensity: %f\n", data.stdLiqDensity);
     printf("StdWatDensity: %f\n", data.stdWatDensity);
-    printf("Gor: %f\n", data.gor);
+    printf("Gor: %d\n", data.gor);
     printf("Glr: %f\n", data.glr);
-    printf("Wc: %f\n", data.wc);
+    printf("Wc: %d\n", data.wc);
     printf("TotWaterFraction: %f\n", data.totWaterFraction);
 
     printf("PhaseEnvelope:\n");
@@ -285,41 +258,11 @@ void printData(Data data) {
 // Функция для парсинга компонента
 Component parseComponent(cJSON* componentJSON) {
     Component component;
-    safeStrCpy(component.id, sizeof(component.id), cJSON_GetObjectItem(componentJSON, "Id")->valuestring);
+    component.id = cJSON_GetObjectItem(componentJSON, "Id")->valueint;
     safeStrCpy(component.compound, sizeof(component.compound), cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "Compound"), "Value")->valuestring);
     component.mol = cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "Mol"), "Value")->valuedouble;
-
-    cJSON* overridableParametersJSON = cJSON_GetObjectItem(componentJSON, "OverridableParameters");
-    if (overridableParametersJSON != NULL) {
-        component.overridableParameters.criticalPressure = cJSON_GetObjectItem(overridableParametersJSON, "CriticalPressure")->valuedouble;
-        component.overridableParameters.criticalTemperature = cJSON_GetObjectItem(overridableParametersJSON, "CriticalTemperature")->valuedouble;
-        component.overridableParameters.criticalVolume = cJSON_GetObjectItem(overridableParametersJSON, "CriticalVolume")->valuedouble;
-        component.overridableParameters.acentricFactor = cJSON_GetObjectItem(overridableParametersJSON, "AcentricFactor")->valuedouble;
-        component.overridableParameters.boilerTemperature = cJSON_GetObjectItem(overridableParametersJSON, "BoilerTemperature")->valuedouble;
-        component.overridableParameters.molecularWeight = cJSON_GetObjectItem(overridableParametersJSON, "MolecularWeight")->valuedouble;
-        component.overridableParameters.parohor = cJSON_GetObjectItem(overridableParametersJSON, "Parohor")->valuedouble;
-        component.overridableParameters.density = cJSON_GetObjectItem(overridableParametersJSON, "Density")->valuedouble;
-        component.overridableParameters.cp1 = cJSON_GetObjectItem(overridableParametersJSON, "Cp1")->valuedouble;
-        component.overridableParameters.cp2 = cJSON_GetObjectItem(overridableParametersJSON, "Cp2")->valuedouble;
-        component.overridableParameters.cp3 = cJSON_GetObjectItem(overridableParametersJSON, "Cp3")->valuedouble;
-        component.overridableParameters.cp4 = cJSON_GetObjectItem(overridableParametersJSON, "Cp4")->valuedouble;
-        component.overridableParameters.meltingTemperature = cJSON_GetObjectItem(overridableParametersJSON, "MeltingTemperature")->valuedouble;
-        component.overridableParameters.meltingEnthalpy = cJSON_GetObjectItem(overridableParametersJSON, "MeltingEnthalpy")->valuedouble;
-        component.overridableParameters.cPen = cJSON_GetObjectItem(overridableParametersJSON, "CPen")->valuedouble;
-        component.overridableParameters.cPenT = cJSON_GetObjectItem(overridableParametersJSON, "CPenT")->valuedouble;
-        component.overridableParameters.aiSmall = cJSON_GetObjectItem(overridableParametersJSON, "AISmall")->valuedouble;
-        component.overridableParameters.biSmall = cJSON_GetObjectItem(overridableParametersJSON, "BISmall")->valuedouble;
-        component.overridableParameters.aiLarge = cJSON_GetObjectItem(overridableParametersJSON, "AILarge")->valuedouble;
-        component.overridableParameters.biLarge = cJSON_GetObjectItem(overridableParametersJSON, "BILarge")->valuedouble;
-        component.overridableParameters.aiiSmall = cJSON_GetObjectItem(overridableParametersJSON, "AIISmall")->valuedouble;
-        component.overridableParameters.biiSmall = cJSON_GetObjectItem(overridableParametersJSON, "BIISmall")->valuedouble;
-        component.overridableParameters.aiiLarge = cJSON_GetObjectItem(overridableParametersJSON, "AIILarge")->valuedouble;
-        component.overridableParameters.biiLarge = cJSON_GetObjectItem(overridableParametersJSON, "BIILarge")->valuedouble;
-        component.overridableParameters.ahSmall = cJSON_GetObjectItem(overridableParametersJSON, "AHSmall")->valuedouble;
-        component.overridableParameters.bhSmall = cJSON_GetObjectItem(overridableParametersJSON, "BHSmall")->valuedouble;
-        component.overridableParameters.ahHuge = cJSON_GetObjectItem(overridableParametersJSON, "AHHuge")->valuedouble;
-        component.overridableParameters.bhHuge = cJSON_GetObjectItem(overridableParametersJSON, "BHHuge")->valuedouble;
-    }
+    //component.molWeight = cJSON_GetObjectItem(cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "OverridableParameters"), "MolecularWeight"), "Value")->valuedouble;
+    //component.density = cJSON_GetObjectItem(cJSON_GetObjectItem(cJSON_GetObjectItem(componentJSON, "OverridableParameters"), "Density"), "Value")->valueint;
 
     return component;
 }
@@ -417,7 +360,7 @@ CriticalPoint* parseCriticalPoint(cJSON* criticalPointJSON) {
 // Функция для парсинга PhaseEnvelope 
 PhaseEnvelope parsePhaseEnvelope(cJSON* phaseEnvelopeJSON) {
     PhaseEnvelope phaseEnvelope;
-    safeStrCpy(phaseEnvelope.id, sizeof(phaseEnvelope.id), cJSON_GetObjectItem(cJSON_GetObjectItem(phaseEnvelopeJSON, "Id"), "Value")->valuestring);
+
     cJSON* criticalPointJSON = cJSON_GetObjectItem(phaseEnvelopeJSON, "CriticalPoint");
     phaseEnvelope.criticalPoint = parseCriticalPoint(criticalPointJSON);
 
@@ -496,6 +439,7 @@ Data* parseData(const char* jsonString) {
 }
 
 int main() {
+    //setlocale(LC_ALL, "Rus");
     char file_path[256];
     printf("Enter JSON path: ");
     fgets(file_path, sizeof(file_path), stdin);
@@ -533,6 +477,13 @@ int main() {
     // Освобождение памяти
     free(data->components);
     free(data->ptvTablePoints);
+    if (data->phaseEnvelope.criticalPoint != NULL) {
+        free(data->phaseEnvelope.criticalPoint->temperature);
+        free(data->phaseEnvelope.criticalPoint->pressure);
+        free(data->phaseEnvelope.criticalPoint);
+    }
+    free(data->phaseEnvelope.bubbleCurvePoints);
+    free(data);
 
     return 0;
 }
