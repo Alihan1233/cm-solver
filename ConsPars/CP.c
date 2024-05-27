@@ -5,37 +5,6 @@
 #include <locale.h>
 
 typedef struct {
-    double criticalPressure;
-    double criticalTemperature;
-    double criticalVolume;
-    double acentricFactor;
-    double boilerTemperature;
-    double molecularWeight;
-    double parohor;
-    double density;
-    double cp1;
-    double cp2;
-    double cp3;
-    double cp4;
-    double meltingTemperature;
-    double meltingEnthalpy;
-    double cPen;
-    double cPenT;
-    double aiSmall;
-    double biSmall;
-    double aiLarge;
-    double biLarge;
-    double aiiSmall;
-    double biiSmall;
-    double aiiLarge;
-    double biiLarge;
-    double ahSmall;
-    double bhSmall;
-    double ahHuge;
-    double bhHuge;
-} OverridableParameters;
-
-typedef struct {
     int id;
     char compound[50];
     double mol;
