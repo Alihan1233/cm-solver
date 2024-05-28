@@ -50,8 +50,13 @@ typedef struct {
 // Структура для BubbleCurve
 typedef struct {
     double temperature;
-    int pressure;
+    double pressure;
 } BubbleCurvePoint;
+
+typedef struct {
+    double temperature;
+    double pressure;
+} DewCurvePoint;
 
 // Структура для CriticalPoint
 typedef struct {
@@ -63,7 +68,9 @@ typedef struct {
 typedef struct {
     CriticalPoint* criticalPoint;
     BubbleCurvePoint* bubbleCurvePoints;
+    DewCurvePoint* dewCurvePoints;
     int bubbleCurveCount;
+    int dewCurveCount;
 } PhaseEnvelope;
 
 // Структура для основных данных
@@ -161,7 +168,12 @@ void printPtvTablePoint(PtvTablePoint* ptvTablePoint) {
 // Функция для вывода BubbleCurve в консоль
 void printBubbleCurvePoint(BubbleCurvePoint* bubbleCurvePoint) {
     printf("Temperature: %f\n", bubbleCurvePoint->temperature);
-    printf("Pressure: %d\n", bubbleCurvePoint->pressure);
+    printf("Pressure: %f\n", bubbleCurvePoint->pressure);
+}
+
+void printDewCurvePoint(DewCurvePoint* dewCurvePoint) {
+    printf("Temperature: %f\n", dewCurvePoint->temperature);
+    printf("Pressure: %f\n", dewCurvePoint->pressure);
 }
 
 // Функция для вывода CriticalPoint в консоль
@@ -184,6 +196,12 @@ void printPhaseEnvelope(PhaseEnvelope* phaseEnvelope) {
     for (int i = 0; i < phaseEnvelope->bubbleCurveCount; ++i) {
         printf("=== BubbleCurvePoint %d ===\n", i + 1);
         printBubbleCurvePoint(&phaseEnvelope->bubbleCurvePoints[i]);
+    }
+
+    printf("DewCurve:\n");
+    for (int i = 0; i < phaseEnvelope->dewCurveCount; ++i) {
+        printf("=== DewCurvePoint %d ===\n", i + 1);
+        printDewCurvePoint(&phaseEnvelope->dewCurvePoints[i]);
     }
 }
 
@@ -289,12 +307,31 @@ BubbleCurvePoint parseBubbleCurvePoint(cJSON* bubbleCurvePointJSON) {
     }
     cJSON* pressureJSON = cJSON_GetObjectItem(bubbleCurvePointJSON, "Pressure");
     if (pressureJSON != NULL) {
-        bubbleCurvePoint.pressure = pressureJSON->valueint;
+        bubbleCurvePoint.pressure = pressureJSON->valuedouble;
     }
     else {
         bubbleCurvePoint.pressure = 0;
     }
     return bubbleCurvePoint;
+}
+
+DewCurvePoint parseDewCurvePoint(cJSON* dewCurvePointJSON) {
+    DewCurvePoint dewCurvePoint;
+    cJSON* temperatureJSON = cJSON_GetObjectItem(dewCurvePointJSON, "Temperature");
+    if (temperatureJSON != NULL) {
+        dewCurvePoint.temperature = temperatureJSON->valuedouble;
+    }
+    else {
+        dewCurvePoint.temperature = 0.0;
+    }
+    cJSON* pressureJSON = cJSON_GetObjectItem(dewCurvePointJSON, "Pressure");
+    if (pressureJSON != NULL) {
+        dewCurvePoint.pressure = pressureJSON->valuedouble;
+    }
+    else {
+        dewCurvePoint.pressure = 0;
+    }
+    return dewCurvePoint;
 }
 
 // Функция для парсинга CriticalPoint
@@ -341,6 +378,17 @@ PhaseEnvelope parsePhaseEnvelope(cJSON* phaseEnvelopeJSON) {
         cJSON* bubbleCurvePointJSON = NULL;
         cJSON_ArrayForEach(bubbleCurvePointJSON, bubbleCurvePointsJSON) {
             phaseEnvelope.bubbleCurvePoints[i++] = parseBubbleCurvePoint(bubbleCurvePointJSON);
+        }
+    }
+
+    cJSON* dewCurvePointsJSON = cJSON_GetObjectItem(phaseEnvelopeJSON, "DewCurve");
+    if (dewCurvePointsJSON != NULL && cJSON_IsArray(dewCurvePointsJSON)) {
+        phaseEnvelope.dewCurveCount = cJSON_GetArraySize(dewCurvePointsJSON);
+        phaseEnvelope.dewCurvePoints = malloc(phaseEnvelope.dewCurveCount * sizeof(DewCurvePoint)); 
+        int i = 0;
+        cJSON* dewCurvePointJSON = NULL; 
+        cJSON_ArrayForEach(dewCurvePointJSON, dewCurvePointsJSON) {
+            phaseEnvelope.dewCurvePoints[i++] = parseDewCurvePoint(dewCurvePointJSON);
         }
     }
 
